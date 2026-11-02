@@ -110,8 +110,9 @@
       }
     }
 
+    /* ZMIANA: przycisk wyśrodkowany względem całego ekranu */
     .action {
-      margin-top: 2rem;
+      margin: 2rem auto 0;
       text-align: center;
     }
 
@@ -225,11 +226,12 @@
 
     </div>
 
-    <div class="action">
-      <a class="enter" id="enter" href="/investigation">[ ENTER THE MATRIX ]</a>
-    </div>
-
   </main>
+
+
+  <div class="action">
+    <a class="enter" id="enter" href="/investigation">[ ENTER THE MATRIX ]</a>
+  </div>
 
 
   <script>
@@ -366,7 +368,7 @@
           await sleep(PARAGRAPH_PAUSE);
         }
 
-        // 4. Koniec wiadomości: kropki zostają zapalone, pokazujemy przycisk
+
         stopDots();
         await sleep(BUTTON_DELAY);
 
@@ -375,9 +377,7 @@
       }
 
 
-      /* ============================================
-         WERSJA BEZ ANIMACJI (prefers-reduced-motion)
-         ============================================ */
+
       function showEverything() {
         statusText.classList.add("on");
 

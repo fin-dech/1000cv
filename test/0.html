@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>1000CV</title>
+
+  <style>
+    /* ============================================
+       PODSTAWY
+       ============================================ */
+    :root {
+      --green: #00ff41;
+      color-scheme: dark;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      background: #000000;
+      color: #ffffff;
+    }
+
+    body {
+      min-height: 100vh;
+      min-height: 100svh;
+      padding:
+        calc(env(safe-area-inset-top, 0px) + 2.5rem)
+        1.25rem
+        calc(env(safe-area-inset-bottom, 0px) + 3rem);
+      font-family: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, monospace;
+      font-size: clamp(15px, 3.9vw, 20px);
+      line-height: 1.7;
+    }
+
+    /* ============================================
+       TYTUŁ
+       ============================================ */
+    h1 {
+      margin: 0;
+      padding-left: 0.35em; /* wyrównuje optycznie odstęp między literami */
+      text-align: center;
+      font-size: clamp(1.6rem, 6vw, 2.4rem);
+      font-weight: 400;
+      letter-spacing: 0.35em;
+    }
+
+    /* ============================================
+       TERMINAL
+       Cała treść jest w DOM od początku (ukryta),
+       więc nic nie przesuwa się podczas pisania.
+       ============================================ */
+    .terminal {
+      max-width: 38rem;
+      margin: 3rem auto 0;
+    }
+
+    .status {
+      margin: 0 0 1.5rem;
+      letter-spacing: 0.06em;
+    }
+
+    .status-text {
+      visibility: hidden;
+    }
+
+    .status-text.on {
+      visibility: visible;
+    }
+
+    /* Trzy kropki: zawsze zajmują miejsce, tylko się pokazują */
+    .dots span {
+      visibility: hidden;
+    }
+
+    .dots span.on {
+      visibility: visible;
+    }
+
+    .para {
+      margin: 0 0 1.1rem;
+    }
+
+    /* Każda litera to osobny <span>, odsłaniany po kolei */
+    .ch {
+      visibility: hidden;
+    }
+
+    .ch.on {
+      visibility: visible;
+    }
+
+    /* ============================================
+       KURSOR: cienka pionowa kreska "|"
+       Szerokość 0 + pozycja absolutna = nie powoduje przesunięć
+       ============================================ */
+    .cursor {
+      position: relative;
+      display: inline-block;
+      width: 0;
+      height: 1em;
+      vertical-align: text-bottom;
+    }
+
+    .cursor::after {
+      content: "";
+      position: absolute;
+      left: 2px;
+      top: 0.05em;
+      width: 2px;
+      height: 1.1em;
+      background: #ffffff;
+      animation: blink 1s steps(1) infinite;
+    }
+
+    @keyframes blink {
+      50% {
+        opacity: 0;
+      }
+    }
+
+    /* ============================================
+       PRZYCISK [ ENTER THE MATRIX ]
+       ============================================ */
+    .action {
+      margin-top: 2rem;
+      text-align: center;
+    }
+
+    .enter {
+      display: inline-block;
+      padding: 0.9em 1.6em;
+      font: inherit;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      color: var(--green);
+      background: #000000;
+      border: 1px solid var(--green);
+      box-shadow: 0 0 8px rgba(0, 255, 65, 0.35);
+
+      /* ukryty do końca wiadomości */
+      opacity: 0;
+      visibility: hidden;
+      transition:
+        opacity 1.4s ease,
+        visibility 0s linear 1.4s,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .enter.show {
+      opacity: 1;
+      visibility: visible;
+      transition:
+        opacity 1.4s ease,
+        visibility 0s linear 0s,
+        background 0.25s ease,
+        box-shadow 0.25s ease;
+    }
+
+    .enter:hover,
+    .enter:focus-visible {
+      background: #04210b;
+      box-shadow: 0 0 18px rgba(0, 255, 65, 0.8);
+      outline: none;
+    }
+
+    .enter:focus-visible {
+      outline: 2px solid var(--green);
+      outline-offset: 4px;
+    }
+
+    /* Tekst tylko dla czytników ekranu (animowana wersja jest dla nich ukryta) */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      margin: -1px;
+      padding: 0;
+      overflow: hidden;
+      clip: rect(0 0 0 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ============================================
+       OSOBY Z WYŁĄCZONĄ ANIMACJĄ
+       ============================================ */
+    @media (prefers-reduced-motion: reduce) {
+      .cursor::after {
+        animation: none;
+      }
+
+      .enter,
+      .enter.show {
+        transition: none;
+      }
+    }
+  </style>
+
+  <!-- Bez JavaScriptu pokaż wszystko od razu -->
+  <noscript>
+    <style>
+      .ch,
+      .status-text,
+      .dots span {
+        visibility: visible;
+      }
+
+      .enter {
+        opacity: 1;
+        visibility: visible;
+      }
+    </style>
+  </noscript>
+</head>
+
+
+<body>
+
+  <h1>1000CV</h1>
+
+  <main class="terminal">
+
+    <!-- Wersja dla czytników ekranu -->
+    <p class="sr-only">
+      Incoming transmission. Hello, operator. This is Zion.
+      We've detected unusual instability within the Matrix.
+      I've been sent to investigate.
+      I found that the global job market appears to be experiencing a critical malfunction.
+      1000+ applications later, I have some answers.
+      Are you ready to see what I found?
+    </p>
+
+    <!-- Wersja animowana -->
+    <div aria-hidden="true">
+
+      <p class="status">
+        <span id="cursor" class="cursor"></span><span class="status-text" id="statusText">INCOMING TRANSMISSION<span class="dots" id="dots"><span>.</span><span>.</span><span>.</span></span></span>
+      </p>
+
+      <div id="message"></div>
+
+    </div>
+
+    <div class="action">
+      <a class="enter" id="enter" href="/investigation">[ ENTER THE MATRIX ]</a>
+    </div>
+
+  </main>
+
+
+  <script>
+    (function () {
+
+      // Czy użytkownik wyłączył animacje w systemie?
+      var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+      /* ============================================
+         TREŚĆ WIADOMOŚCI
+         Każda pozycja = jeden akapit.
+         Każdy tekst w środku = jedna linia (łamanie linii zachowane).
+         ============================================ */
+      var MESSAGE = [
+        ["Hello, operator."],
+        ["This is Zion."],
+        ["We've detected unusual instability", "within the Matrix."],
+        ["I've been sent to investigate."],
+        ["I found that the global job market appears to be", "experiencing a critical malfunction."],
+        ["1000+ applications later,", "I have some answers."],
+        ["Are you ready to see what I found?"]
+      ];
+
+
+      /* ============================================
+         USTAWIENIA CZASU (w milisekundach)
+         ============================================ */
+      var WAIT_BEFORE_START = 3000;  // pusty ekran z kursorem
+      var DOTS_BEFORE_TYPING = 2400; // kropki kręcą się zanim zacznie się pisanie
+      var PARAGRAPH_PAUSE = 900;     // przerwa między akapitami
+      var BUTTON_DELAY = 700;        // przerwa przed pokazaniem przycisku
+
+
+      // Elementy strony
+      var message = document.getElementById("message");
+      var cursor = document.getElementById("cursor");
+      var statusText = document.getElementById("statusText");
+      var dots = Array.prototype.slice.call(document.querySelectorAll("#dots span"));
+      var enter = document.getElementById("enter");
+
+
+      function sleep(ms) {
+        return new Promise(function (resolve) {
+          setTimeout(resolve, ms);
+        });
+      }
+
+
+      /* ============================================
+         BUDOWA TEKSTU (wszystkie litery od razu, ukryte)
+         ============================================ */
+      var paragraphs = MESSAGE.map(function (lines) {
+        var p = document.createElement("p");
+        p.className = "para";
+
+        var chars = [];
+
+        lines.forEach(function (line, index) {
+          if (index > 0) {
+            p.appendChild(document.createElement("br"));
+          }
+
+          line.split("").forEach(function (ch) {
+            var span = document.createElement("span");
+            span.className = "ch";
+            span.textContent = ch;
+            p.appendChild(span);
+            chars.push(span);
+          });
+        });
+
+        message.appendChild(p);
+        return { el: p, chars: chars };
+      });
+
+
+      /* ============================================
+         RYTM PISANIA
+         Zwykła litera: ok. 45-90 ms, po przecinku dłużej, po kropce jeszcze dłużej
+         ============================================ */
+      function delayFor(ch) {
+        if (ch === "." || ch === "?" || ch === "!") {
+          return 380;
+        }
+
+        if (ch === ",") {
+          return 240;
+        }
+
+        return 45 + Math.random() * 45;
+      }
+
+
+      /* ============================================
+         ANIMACJA KROPEK
+         . -> .. -> ... -> (puste) -> od nowa
+         ============================================ */
+      var dotsTimer = null;
+
+      function startDots() {
+        var n = 0;
+
+        dotsTimer = setInterval(function () {
+          n = (n + 1) % 4;
+
+          dots.forEach(function (dot, i) {
+            dot.classList.toggle("on", i < n);
+          });
+        }, 450);
+      }
+
+      function stopDots() {
+        clearInterval(dotsTimer);
+
+        dots.forEach(function (dot) {
+          dot.classList.add("on");
+        });
+      }
+
+
+      /* ============================================
+         PRZEBIEG PEŁNY (z animacją)
+         ============================================ */
+      async function run() {
+
+        // 1. Czekamy 3 sekundy z migającym kursorem
+        await sleep(WAIT_BEFORE_START);
+
+        // 2. Pokazujemy "INCOMING TRANSMISSION" z kropkami
+        statusText.classList.add("on");
+        statusText.after(cursor);
+        startDots();
+
+        await sleep(DOTS_BEFORE_TYPING);
+
+        // 3. Piszemy akapit po akapicie
+        for (var i = 0; i < paragraphs.length; i++) {
+          var para = paragraphs[i];
+
+          para.el.prepend(cursor);
+          cursor.scrollIntoView({ block: "nearest" });
+
+          for (var j = 0; j < para.chars.length; j++) {
+            var c = para.chars[j];
+
+            c.classList.add("on");
+            c.after(cursor);
+
+            await sleep(delayFor(c.textContent));
+          }
+
+          await sleep(PARAGRAPH_PAUSE);
+        }
+
+        // 4. Koniec wiadomości: kropki zostają zapalone, pokazujemy przycisk
+        stopDots();
+        await sleep(BUTTON_DELAY);
+
+        enter.classList.add("show");
+        enter.scrollIntoView({ block: "nearest" });
+      }
+
+
+      /* ============================================
+         WERSJA BEZ ANIMACJI (prefers-reduced-motion)
+         ============================================ */
+      function showEverything() {
+        statusText.classList.add("on");
+
+        dots.forEach(function (dot) {
+          dot.classList.add("on");
+        });
+
+        paragraphs.forEach(function (para) {
+          para.chars.forEach(function (c) {
+            c.classList.add("on");
+          });
+        });
+
+        var last = paragraphs[paragraphs.length - 1];
+        last.chars[last.chars.length - 1].after(cursor);
+
+        enter.classList.add("show");
+      }
+
+
+      if (reduce) {
+        showEverything();
+      } else {
+        run();
+      }
+
+    })();
+  </script>
+
+</body>
+</html>

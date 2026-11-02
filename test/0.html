@@ -7,9 +7,6 @@
   <title>1000CV</title>
 
   <style>
-    /* ============================================
-       PODSTAWY
-       ============================================ */
     :root {
       --green: #00ff41;
       color-scheme: dark;
@@ -23,7 +20,7 @@
     body {
       margin: 0;
       background: #000000;
-      color: #ffffff;
+      color: var(--green);
     }
 
     body {
@@ -38,26 +35,21 @@
       line-height: 1.7;
     }
 
-    /* ============================================
-       TYTUŁ
-       ============================================ */
     h1 {
       margin: 0;
-      padding-left: 0.35em; /* wyrównuje optycznie odstęp między literami */
-      text-align: center;
+      padding-left: 0.35em; 
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 2.5rem);
+      right: 1.25rem;
+      text-align: right;
       font-size: clamp(1.6rem, 6vw, 2.4rem);
       font-weight: 400;
       letter-spacing: 0.35em;
     }
 
-    /* ============================================
-       TERMINAL
-       Cała treść jest w DOM od początku (ukryta),
-       więc nic nie przesuwa się podczas pisania.
-       ============================================ */
     .terminal {
       max-width: 38rem;
-      margin: 3rem auto 0;
+      margin: 3rem 0 0 3rem;
     }
 
     .status {
@@ -73,7 +65,6 @@
       visibility: visible;
     }
 
-    /* Trzy kropki: zawsze zajmują miejsce, tylko się pokazują */
     .dots span {
       visibility: hidden;
     }
@@ -86,7 +77,6 @@
       margin: 0 0 1.1rem;
     }
 
-    /* Każda litera to osobny <span>, odsłaniany po kolei */
     .ch {
       visibility: hidden;
     }
@@ -95,10 +85,6 @@
       visibility: visible;
     }
 
-    /* ============================================
-       KURSOR: cienka pionowa kreska "|"
-       Szerokość 0 + pozycja absolutna = nie powoduje przesunięć
-       ============================================ */
     .cursor {
       position: relative;
       display: inline-block;
@@ -124,9 +110,6 @@
       }
     }
 
-    /* ============================================
-       PRZYCISK [ ENTER THE MATRIX ]
-       ============================================ */
     .action {
       margin-top: 2rem;
       text-align: center;
@@ -143,7 +126,6 @@
       border: 1px solid var(--green);
       box-shadow: 0 0 8px rgba(0, 255, 65, 0.35);
 
-      /* ukryty do końca wiadomości */
       opacity: 0;
       visibility: hidden;
       transition:
@@ -175,7 +157,6 @@
       outline-offset: 4px;
     }
 
-    /* Tekst tylko dla czytników ekranu (animowana wersja jest dla nich ukryta) */
     .sr-only {
       position: absolute;
       width: 1px;
@@ -188,9 +169,6 @@
       border: 0;
     }
 
-    /* ============================================
-       OSOBY Z WYŁĄCZONĄ ANIMACJĄ
-       ============================================ */
     @media (prefers-reduced-motion: reduce) {
       .cursor::after {
         animation: none;
@@ -203,7 +181,6 @@
     }
   </style>
 
-  <!-- Bez JavaScriptu pokaż wszystko od razu -->
   <noscript>
     <style>
       .ch,
@@ -231,8 +208,8 @@
     <p class="sr-only">
       Incoming transmission. Hello, operator. This is Zion.
       We've detected unusual instability within the Matrix.
-      I've been sent to investigate.
-      I found that the global job market appears to be experiencing a critical malfunction.
+      I was chosen to investigate.
+      Something is wrong with the global job market.
       1000+ applications later, I have some answers.
       Are you ready to see what I found?
     </p>
@@ -262,11 +239,6 @@
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 
-      /* ============================================
-         TREŚĆ WIADOMOŚCI
-         Każda pozycja = jeden akapit.
-         Każdy tekst w środku = jedna linia (łamanie linii zachowane).
-         ============================================ */
       var MESSAGE = [
         ["Hello, operator."],
         ["This is Zion."],
@@ -278,13 +250,10 @@
       ];
 
 
-      /* ============================================
-         USTAWIENIA CZASU (w milisekundach)
-         ============================================ */
-      var WAIT_BEFORE_START = 3000;  // pusty ekran z kursorem
-      var DOTS_BEFORE_TYPING = 2400; // kropki kręcą się zanim zacznie się pisanie
-      var PARAGRAPH_PAUSE = 900;     // przerwa między akapitami
-      var BUTTON_DELAY = 700;        // przerwa przed pokazaniem przycisku
+      var WAIT_BEFORE_START = 3000;  
+      var DOTS_BEFORE_TYPING = 2400; 
+      var PARAGRAPH_PAUSE = 900;     
+      var BUTTON_DELAY = 700;        
 
 
       // Elementy strony
@@ -302,9 +271,7 @@
       }
 
 
-      /* ============================================
-         BUDOWA TEKSTU (wszystkie litery od razu, ukryte)
-         ============================================ */
+
       var paragraphs = MESSAGE.map(function (lines) {
         var p = document.createElement("p");
         p.className = "para";
@@ -330,10 +297,7 @@
       });
 
 
-      /* ============================================
-         RYTM PISANIA
-         Zwykła litera: ok. 45-90 ms, po przecinku dłużej, po kropce jeszcze dłużej
-         ============================================ */
+
       function delayFor(ch) {
         if (ch === "." || ch === "?" || ch === "!") {
           return 380;
@@ -347,10 +311,7 @@
       }
 
 
-      /* ============================================
-         ANIMACJA KROPEK
-         . -> .. -> ... -> (puste) -> od nowa
-         ============================================ */
+
       var dotsTimer = null;
 
       function startDots() {
@@ -374,22 +335,19 @@
       }
 
 
-      /* ============================================
-         PRZEBIEG PEŁNY (z animacją)
-         ============================================ */
       async function run() {
 
-        // 1. Czekamy 3 sekundy z migającym kursorem
+
         await sleep(WAIT_BEFORE_START);
 
-        // 2. Pokazujemy "INCOMING TRANSMISSION" z kropkami
+
         statusText.classList.add("on");
         statusText.after(cursor);
         startDots();
 
         await sleep(DOTS_BEFORE_TYPING);
 
-        // 3. Piszemy akapit po akapicie
+
         for (var i = 0; i < paragraphs.length; i++) {
           var para = paragraphs[i];
 

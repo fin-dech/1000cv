@@ -90,6 +90,17 @@
       padding: 6rem 1.2rem 3rem;
     }
 
+    /* ZMIANA: zawartość ekranu startowego jest ukryta,
+       pojawia się po 2 sekundach (klasa "show" dodawana w JavaScript) */
+    .hero-content {
+      opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+
+    .hero-content.show {
+      opacity: 1;
+    }
+
     .hero .subtitle {
     font-size: clamp(1.2rem, 3vw, 2rem);
     font-weight: bold;
@@ -200,6 +211,11 @@
        DLA OSÓB Z WYŁĄCZONĄ ANIMACJĄ (reduce motion)
        ============================================ */
     @media (prefers-reduced-motion: reduce) {
+      .hero-content {
+        opacity: 1;
+        transition: none;
+      }
+
       .reveal span {
         opacity: 1;
         transition: none;
@@ -220,6 +236,15 @@
       }
     }
   </style>
+
+  <!-- ZMIANA: bez JavaScriptu pokaż zawartość od razu -->
+  <noscript>
+    <style>
+      .hero-content {
+        opacity: 1;
+      }
+    </style>
+  </noscript>
 </head>
 
 
@@ -234,7 +259,7 @@
 
     <!-- Ekran startowy -->
     <section class="hero">
-      <div>
+      <div class="hero-content" id="heroContent">
         <h1>1000cv</h1>
         <p class="subtitle">THE JOB MARKET INVESTIGATION</p>
         <p>Data Analyst • BI Developer • Data Engineer</p>
@@ -278,6 +303,25 @@
 
       // Czy użytkownik wyłączył animacje w systemie?
       var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+
+      /* ============================================
+         ZMIANA: POKAZANIE EKRANU STARTOWEGO PO 2 SEKUNDACH
+         Najpierw widać tylko deszcz znaków.
+         Żeby zmienić opóźnienie, zmień liczbę 2000 (w milisekundach).
+         ============================================ */
+
+      var HERO_DELAY = 2000;
+
+      var heroContent = document.getElementById("heroContent");
+
+      if (reduce) {
+        heroContent.classList.add("show");
+      } else {
+        setTimeout(function () {
+          heroContent.classList.add("show");
+        }, HERO_DELAY);
+      }
 
 
       /* ============================================
